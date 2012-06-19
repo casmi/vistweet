@@ -1,3 +1,21 @@
+/*
+ *   vistweet
+ *   https://github.com/casmi/vistweet
+ *   Copyright (C) 2011, Xcoo, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package vistweet.net;
 
 import java.io.IOException;
@@ -17,6 +35,7 @@ import vistweet.data.sql.Retweet;
 import vistweet.data.sql.StatusInterface;
 import vistweet.data.sql.UserTimeline;
 import vistweet.graphics.ClusterGroup;
+import vistweet.graphics.Indicator;
 import casmi.exception.NetException;
 import casmi.exception.ParserException;
 import casmi.sql.Query;
@@ -24,25 +43,30 @@ import casmi.sql.SQLite;
 
 public final class Request implements Runnable {
 
+    private final Vistweet vistweet;
     private final Twitter twitter;
-    private final SQLite  sqlite;
+    private final SQLite sqlite;
     
     private UserTimeline[] userTimelines = null;
     private Mention[]      mentions      = null;
     
     private final List<Cluster> clusterList = new CopyOnWriteArrayList<Cluster>();
 
-    public Request(Twitter twitter, SQLite sqlite) {
+    public Request(Vistweet vistweet, Twitter twitter, SQLite sqlite) {
         super();
+        this.vistweet = vistweet; 
         this.twitter = twitter;
-        this.sqlite  = sqlite;
+        this.sqlite = sqlite;
     }
 
     @Override
     public void run() {
-        Vistweet.getIndicator().start();
-        Vistweet.getIndicator().setMessage("Loading tweet...");
         
+        Indicator indicator = vistweet.getIndicator();
+        indicator.visible();
+        indicator.start();
+        indicator.setMessage("Loading tweet...");
+/*        
         try {
             loadUserTimeline();
         } catch (Exception e) {
@@ -60,8 +84,8 @@ public final class Request implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        Vistweet.getIndicator().setMessage("Analyzing tweet...");
+*/        
+        indicator.setMessage("Analyzing tweet...");
 
         try {
             userTimelines = sqlite.all(UserTimeline.class, new Query().order("created_at"));
@@ -78,16 +102,17 @@ public final class Request implements Runnable {
             addCluster();
             
             List<ClusterGroup> cgList = new CopyOnWriteArrayList<ClusterGroup>();
-            for (Cluster cluster : Vistweet.getClusterList()) {
+            for (Cluster cluster : clusterList) {
                 ClusterGroup ce = new ClusterGroup(cluster);
                 cgList.add(ce);
             }
-            Vistweet.setClusterGroupList(cgList);
+            vistweet.setClusterGroupList(cgList);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         
-        Vistweet.getIndicator().stop();
+        indicator.stop();
+        indicator.hidden();
     }
     
     private final void loadUserTimeline() 
@@ -220,7 +245,7 @@ public final class Request implements Runnable {
             }
         }
         
-        Vistweet.setClusterList(clusterList);
+        vistweet.setClusterList(clusterList);
     }
 
     private final void recursiveAddCluster(Cluster cluster) {

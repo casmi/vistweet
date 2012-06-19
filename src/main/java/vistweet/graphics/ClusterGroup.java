@@ -1,3 +1,21 @@
+/*
+ *   vistweet
+ *   https://github.com/casmi/vistweet
+ *   Copyright (C) 2011, Xcoo, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package vistweet.graphics;
 
 import java.net.URL;
@@ -5,17 +23,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vistweet.data.cluster.Cluster;
-import casmi.graphics.Graphics;
 import casmi.graphics.color.Color;
 import casmi.graphics.color.ColorSet;
+import casmi.graphics.color.GrayColor;
 import casmi.graphics.element.Rect;
 import casmi.graphics.element.Text;
 import casmi.graphics.element.TextAlign;
 import casmi.graphics.element.TextBox;
 import casmi.graphics.element.Texture;
 import casmi.graphics.font.Font;
+import casmi.graphics.font.FontStyle;
 import casmi.graphics.group.Group;
 
+/**
+ * @author T. Takeuchi
+ */
 public final class ClusterGroup extends Group {
 
     private static final double   DEFAULT_WIDTH  = 350;
@@ -32,60 +54,43 @@ public final class ClusterGroup extends Group {
     private List<Texture> iconList = new ArrayList<Texture>();
     
     public ClusterGroup(Cluster cluster) {
+        super();
         this.cluster = cluster;
         setup();
     }
     
-    @Override
     public void setup() {
-        Font f = new Font();
-        f.setSize(12);
+
+        rect = new Rect(width, height);
+        add(rect);
+        
+        Font f = new Font("Default", FontStyle.PLAIN, 12.0);
         Text t = new Text(cluster.getMain().getText(), f);
-        t.setStrokeColor(Color.color(ColorSet.WHITE));
+        t.setStrokeColor(ColorSet.WHITE);
         t.setAlign(TextAlign.LEFT);
         textBox = new TextBox(t, 0, 0, TEXTBOX_SIZE[0], TEXTBOX_SIZE[1]);
-        height = ICON_SIZE + textBox.getHeight();
+        textBox.setPosition(0.0, height / 2.0 - TEXTBOX_SIZE[1] / 2.0);
+        add(textBox);
         
-        rect = new Rect(width, height);
+        height = ICON_SIZE + textBox.getHeight();        
         
         generateIconList(cluster);
+        
+        for (Texture icon : iconList) {
+            add(icon);
+        }
     }
     
     @Override
-    public void draw(Graphics g) {
-    }
-
-    public void draw(Graphics g, int mouseX, int mouseY) {
-        if (isMouseOver(mouseX, mouseY)) {
-            rect.setFillColor(new Color(150));
-        }
-        rect.setX(x);
-        rect.setY(y);
-        
-        textBox.setX(x);
-        textBox.setY(y + height / 2 - TEXTBOX_SIZE[1] / 2);
-        
-        g.render(rect);
-        g.render(textBox);
-
-        drawIcons(g);
+    public void update() {
+        drawIcons();
     }
     
-    public boolean isMouseOver(int mouseX, int mouseY) {
-        if (x - width  / 2 < mouseX && mouseX < x + width  / 2 &&
-            y - height / 2 < mouseY && mouseY < y + height / 2) {
-            return true;
-        }
-        
-        return false;
-    }
-    
-    private final void drawIcons(Graphics g) {
+    private final void drawIcons() {
         int i = 0;
         for (Texture icon : iconList) {
-            icon.set(x - width / 2 + ICON_SIZE * (0.5 + i) + 5, y - height / 2 + ICON_SIZE / 2 + 5,
+            icon.set(- width / 2 + ICON_SIZE * (0.5 + i) + 5, - height / 2 + ICON_SIZE / 2 + 5,
                      ICON_SIZE, ICON_SIZE);
-            g.render(icon);
             i++;
         }
     }
