@@ -88,7 +88,7 @@ public final class Vistweet extends Applet implements ActionListener {
     
     private VizGroup     vizGroup;
     private float        visGroupScale = 1.0f;
-    private DetailView detailView;
+    private DetailView   detailView;
     private TweenElement tweenElement;  
     
     private Triangle upArrow, downArrow;
@@ -216,6 +216,7 @@ public final class Vistweet extends Applet implements ActionListener {
     private void setupButtons() {
         reloadButton = new Texture(RELOAD_ICON_PATH);
         reloadButton.set(getWidth()  - 25, getHeight() - 25, 40, 40);
+        reloadButton.setFillColor(ColorSet.GRAY);
         reloadButton.addMouseEventCallback(new MouseOverCallback() {
             
             @Override
@@ -245,6 +246,7 @@ public final class Vistweet extends Applet implements ActionListener {
         
         plusButton = new Texture(SCALE_ICON_PLUS_PATH);
         plusButton.set(getWidth()  - 105, getHeight() - 25, 40, 40);
+        plusButton.setFillColor(ColorSet.GRAY);
         plusButton.addMouseEventCallback(new MouseOverCallback() {
     
             @Override
@@ -275,7 +277,8 @@ public final class Vistweet extends Applet implements ActionListener {
         addObject(plusButton);
         
         minusButton = new Texture(SCALE_ICON_MINUS_PATH);
-        minusButton.set(getWidth()  - 65, getHeight() - 25, 40, 40);
+        minusButton.set(getWidth() - 65, getHeight() - 25, 40, 40);
+        minusButton.setFillColor(ColorSet.GRAY);
         minusButton.addMouseEventCallback(new MouseOverCallback() {
     
             @Override
@@ -324,7 +327,7 @@ public final class Vistweet extends Applet implements ActionListener {
         if (cgList.size() < end) end = cgList.size();
         
         // ClusterGroup
-        for (int i = begin; i < end; i++) {
+        for (int i = begin; i < end; ++i) {
             final ClusterGroup cg = cgList.get(cgList.size() - 1 - i);
             
             Color c = (i % 2 == 0 ? new GrayColor(0.18) : new GrayColor(0.21));

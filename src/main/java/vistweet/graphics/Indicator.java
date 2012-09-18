@@ -102,7 +102,7 @@ public final class Indicator extends Group {
             
             el.setX(18.0 * Math.cos(Math.toRadians((90.0 - i * 30.0))));
             el.setY(18.0 * Math.sin(Math.toRadians((90.0 - i * 30.0))) + 30.0);
-            el.setRotate(90.0 - i * 30.0);
+            el.setRotation(90.0 - i * 30.0);
         }
     }
     

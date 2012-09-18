@@ -65,7 +65,7 @@ public final class Request implements Runnable {
         Indicator indicator = vistweet.getIndicator();
         indicator.visible();
         indicator.start();
-        indicator.setMessage("Loading tweet...");
+        indicator.setMessage("Loading tweets...");
 /*        
         try {
             loadUserTimeline();
@@ -84,8 +84,8 @@ public final class Request implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-*/        
-        indicator.setMessage("Analyzing tweet...");
+//*/        
+        indicator.setMessage("Analyzing tweets...");
 
         try {
             userTimelines = sqlite.all(UserTimeline.class, new Query().order("created_at"));
@@ -102,6 +102,7 @@ public final class Request implements Runnable {
             addCluster();
             
             List<ClusterGroup> cgList = new CopyOnWriteArrayList<ClusterGroup>();
+            System.out.println(clusterList.size());
             for (Cluster cluster : clusterList) {
                 ClusterGroup ce = new ClusterGroup(cluster);
                 cgList.add(ce);

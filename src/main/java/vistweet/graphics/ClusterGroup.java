@@ -25,7 +25,6 @@ import java.util.List;
 import vistweet.data.cluster.Cluster;
 import casmi.graphics.color.Color;
 import casmi.graphics.color.ColorSet;
-import casmi.graphics.color.GrayColor;
 import casmi.graphics.element.Rect;
 import casmi.graphics.element.Text;
 import casmi.graphics.element.TextAlign;
@@ -67,33 +66,28 @@ public final class ClusterGroup extends Group {
         Font f = new Font("Default", FontStyle.PLAIN, 12.0);
         Text t = new Text(cluster.getMain().getText(), f);
         t.setStrokeColor(ColorSet.WHITE);
-        t.setAlign(TextAlign.LEFT);
-        textBox = new TextBox(t, 0, 0, TEXTBOX_SIZE[0], TEXTBOX_SIZE[1]);
-        textBox.setPosition(0.0, height / 2.0 - TEXTBOX_SIZE[1] / 2.0);
+        textBox = new TextBox(t, 
+                              0.0, height / 2.0 - TEXTBOX_SIZE[1] / 2.0,
+                              TEXTBOX_SIZE[0], TEXTBOX_SIZE[1]);
         add(textBox);
         
         height = ICON_SIZE + textBox.getHeight();        
         
         generateIconList(cluster);
         
+        int i = 0;
         for (Texture icon : iconList) {
+            icon.set(- width / 2 + ICON_SIZE * (0.5 + i) + 5,
+                     - height / 2 + ICON_SIZE / 2 + 5,
+                     ICON_SIZE,
+                     ICON_SIZE);
             add(icon);
+            i++;
         }
     }
     
     @Override
-    public void update() {
-        drawIcons();
-    }
-    
-    private final void drawIcons() {
-        int i = 0;
-        for (Texture icon : iconList) {
-            icon.set(- width / 2 + ICON_SIZE * (0.5 + i) + 5, - height / 2 + ICON_SIZE / 2 + 5,
-                     ICON_SIZE, ICON_SIZE);
-            i++;
-        }
-    }
+    public void update() {}
     
     private final void generateIconList(Cluster cluster) {
         if (!cluster.hasRefs()) return;
