@@ -40,6 +40,7 @@ public class PINFrame extends JFrame {
         setLocationRelativeTo(null);
         setAlwaysOnTop(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
         setLayout(null);
         
         label = new JLabel("Authorize and input PIN code.");

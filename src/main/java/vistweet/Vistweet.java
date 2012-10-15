@@ -82,7 +82,6 @@ public final class Vistweet extends Applet implements ActionListener {
     private int listTop = 0;
     
     private PINFrame pinFrame;
-    private boolean  isAuthFinished = false;
     
     private Indicator indicator;
     
@@ -96,13 +95,10 @@ public final class Vistweet extends Applet implements ActionListener {
 
     @Override
     public void setup() {
+        
         // set properties of Applet
         setSize(1152, 680);
 //        setFPS(15);
-        
-        // create a window to input PIN code
-        pinFrame = new PINFrame();
-        pinFrame.addActionListenerToButton(this);
         
         // Setup elements and groups
         detailView = new DetailView();
@@ -121,21 +117,6 @@ public final class Vistweet extends Applet implements ActionListener {
         indicator.hidden();
         addObject(indicator);
         
-        // initialize Twitter instance and authorize a user's account
-        twitter = new Twitter();
-        try {
-            if (twitter.isAuthorized()) {
-                twitter.loadAccessToken();
-            } else {
-                twitter.authorizeRequest();
-                pinFrame.setVisible(true);
-                while(!isAuthFinished) Thread.sleep(100);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-        
         // initialize SQLite instance
         try {
             if (!FileUtil.exist(DB_PATH)) {
@@ -148,9 +129,26 @@ public final class Vistweet extends Applet implements ActionListener {
             System.exit(-1);
         }
         
-        // load tweets every 5 minutes
-        cron = new Cron("*/5 * * * *", new Request(this, twitter, sqlite));
-        cron.start();
+        twitter = new Twitter();
+        cron = new Cron("*/10 * * * *", new Request(this, twitter, sqlite));
+        
+        // Authorize a user's account
+        try {
+            if (twitter.isAuthorized()) {
+                twitter.loadAccessToken();
+                cron.start();
+            } else {
+                twitter.authorizeRequest();
+                
+                // create a window to input PIN code
+                pinFrame = new PINFrame();
+                pinFrame.addActionListenerToButton(this);
+                pinFrame.setVisible(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     private void setupArrows() {
@@ -332,8 +330,10 @@ public final class Vistweet extends Applet implements ActionListener {
             
             Color c = (i % 2 == 0 ? new GrayColor(0.18) : new GrayColor(0.21));
             cg.setRectFillColor(c);
-            cg.setPosition(cg.getWidth() / 2,
-                           getHeight() - cg.getHeight() / 2 - (i - listTop) * cg.getHeight() - 25);
+            cg.setPosition(cg.getWidth() / 2.0,
+                           getHeight() - cg.getHeight() / 2.0 - (i - listTop) * (cg.getHeight() + 10.0) - 25.0);
+            
+            
             cg.addMouseEventCallback(new MouseClickCallback() {
                 
                 @Override
@@ -415,10 +415,16 @@ public final class Vistweet extends Applet implements ActionListener {
         try {
             twitter.authorize(pinFrame.getPIN());
             pinFrame.setVisible(false);
-            isAuthFinished = true;
+            authFinished();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+    
+    private void authFinished() {
+        // load tweets every 5 minutes
+        cron = new Cron("*/5 * * * *", new Request(this, twitter, sqlite));
+        cron.start();
     }
 
     @Override

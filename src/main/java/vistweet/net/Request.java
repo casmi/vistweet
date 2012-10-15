@@ -66,7 +66,7 @@ public final class Request implements Runnable {
         indicator.visible();
         indicator.start();
         indicator.setMessage("Loading tweets...");
-/*        
+///*        
         try {
             loadUserTimeline();
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public final class Request implements Runnable {
             addCluster();
             
             List<ClusterGroup> cgList = new CopyOnWriteArrayList<ClusterGroup>();
-            System.out.println(clusterList.size());
+
             for (Cluster cluster : clusterList) {
                 ClusterGroup ce = new ClusterGroup(cluster);
                 cgList.add(ce);
