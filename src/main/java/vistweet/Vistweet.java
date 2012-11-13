@@ -26,8 +26,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import vistweet.data.cluster.Cluster;
 import vistweet.data.cluster.RootCluster;
 import vistweet.graphics.ClusterGroup;
-import vistweet.graphics.Indicator;
 import vistweet.graphics.DetailView;
+import vistweet.graphics.Indicator;
 import vistweet.graphics.PINFrame;
 import vistweet.graphics.VizGroup;
 import vistweet.net.Request;
@@ -45,6 +45,7 @@ import casmi.graphics.element.MouseClickCallback;
 import casmi.graphics.element.MouseOverCallback;
 import casmi.graphics.element.Texture;
 import casmi.graphics.element.Triangle;
+import casmi.graphics.object.GraphicsObject;
 import casmi.sql.SQLite;
 import casmi.tween.Tween;
 import casmi.tween.TweenElement;
@@ -76,8 +77,8 @@ public final class Vistweet extends Applet implements ActionListener {
     private SQLite  sqlite;
     private Cron    cron;
     
-    private List<Cluster> clusterList = new CopyOnWriteArrayList<Cluster>();
-    
+    private GraphicsObject timeline = new GraphicsObject();
+    private List<Cluster> clusterList = new CopyOnWriteArrayList<Cluster>();    
     private List<ClusterGroup> cgList = new CopyOnWriteArrayList<ClusterGroup>();
     private int listTop = 0;
     
@@ -96,21 +97,20 @@ public final class Vistweet extends Applet implements ActionListener {
     @Override
     public void setup() {
         
-        // set properties of Applet
         setSize(1152, 680);
-//        setFPS(15);
         
         // Setup elements and groups
         detailView = new DetailView();
         detailView.setPosition(getWidth() - 145.0,  40.0);
         addObject(detailView);
-
-        setupArrows();
-        
-        setupButtons();
         
         vizGroup = new VizGroup();
         addObject(vizGroup);
+        
+        addObject(timeline);
+        
+        setupArrows();        
+        setupButtons();
         
         indicator = new Indicator();
         indicator.setPosition(getWidth() / 2.0,  getHeight() / 2.0);
@@ -213,7 +213,7 @@ public final class Vistweet extends Applet implements ActionListener {
     
     private void setupButtons() {
         reloadButton = new Texture(RELOAD_ICON_PATH);
-        reloadButton.set(getWidth()  - 25, getHeight() - 25, 40, 40);
+        reloadButton.set(getWidth() - 25, getHeight() - 25, 40, 40);
         reloadButton.setFillColor(ColorSet.GRAY);
         reloadButton.addMouseEventCallback(new MouseOverCallback() {
             
@@ -243,7 +243,7 @@ public final class Vistweet extends Applet implements ActionListener {
         addObject(reloadButton);
         
         plusButton = new Texture(SCALE_ICON_PLUS_PATH);
-        plusButton.set(getWidth()  - 105, getHeight() - 25, 40, 40);
+        plusButton.set(getWidth() - 105, getHeight() - 25, 40, 40);
         plusButton.setFillColor(ColorSet.GRAY);
         plusButton.addMouseEventCallback(new MouseOverCallback() {
     
@@ -334,32 +334,7 @@ public final class Vistweet extends Applet implements ActionListener {
                            getHeight() - cg.getHeight() / 2.0 - (i - listTop) * (cg.getHeight() + 10.0) - 25.0);
             
             
-            cg.addMouseEventCallback(new MouseClickCallback() {
-                
-                @Override
-                public void run(MouseClickTypes eventtype, Element element) {
-                    if (eventtype == MouseClickTypes.CLICKED &&
-                        20 < getMouseY() && getMouseY() < getHeight() - 20) {
 
-                        double width  = getWidth() - cg.getWidth();
-                        double height = getHeight();
-                        double x = width  / 2 + cg.getWidth() + 5;
-                        double y = height / 2;
-
-                        vizGroup.setRootCluster((RootCluster)cg.getCluster());
-                        vizGroup.setPosition(x, y);
-                        vizGroup.setSceneAlpha(0);
-                        visGroupScale = 1.0f;
-
-                        tweenElement = null;
-                        tweenElement = new TweenElement(vizGroup);
-                        Tween tween = Tween.to(tweenElement, TweenType.ALPHA, 500, Linear.INOUT).target(255.0f);
-                        addTween(tween);
-
-                        detailView.setStutas(cg.getCluster().getMain());
-                    }
-                }
-            });
         }
         
         int topNum;
@@ -394,15 +369,60 @@ public final class Vistweet extends Applet implements ActionListener {
     public void setClusterGroupList(List<ClusterGroup> list) {
         
         if (cgList != null) {
-            for (ClusterGroup el : cgList) {
-                el.remove();
+            for (ClusterGroup cg : cgList) {
+                cg.remove();
             }
         }
         
         cgList = list;
         
-        for (ClusterGroup el : cgList) {
-            addObject(el);
+        for (final ClusterGroup cg : cgList) {
+            cg.getRect().addMouseEventCallback(new MouseOverCallback() {
+                
+                @Override
+                public void run(MouseOverTypes eventtype, Element element) {
+
+                    switch (eventtype) {
+                    case ENTERED:
+                    case EXISTED:
+                        cg.setHighlight(true);
+                        break;
+                    case EXITED:
+                    default:
+                        cg.setHighlight(false);
+                        break;
+                    }
+                }
+            });
+            
+            cg.addMouseEventCallback(new MouseClickCallback() {
+                
+                @Override
+                public void run(MouseClickTypes eventtype, Element element) {
+                    if (eventtype == MouseClickTypes.CLICKED &&
+                        20 < getMouseY() && getMouseY() < getHeight() - 20) {
+
+                        double width  = getWidth() - cg.getWidth();
+                        double height = getHeight();
+                        double x = width  / 2 + cg.getWidth() + 5;
+                        double y = height / 2;
+
+                        vizGroup.setRootCluster((RootCluster)cg.getCluster());
+                        vizGroup.setPosition(x, y);
+                        vizGroup.setSceneAlpha(0);
+                        visGroupScale = 1.0f;
+
+                        tweenElement = null;
+                        tweenElement = new TweenElement(vizGroup);
+                        Tween tween = Tween.to(tweenElement, TweenType.ALPHA, 500, Linear.INOUT).target(255.0f);
+                        addTween(tween);
+
+                        detailView.setStutas(cg.getCluster().getMain());
+                    }
+                }
+            });
+            
+            timeline.add(cg);
         }
     }
     

@@ -66,7 +66,7 @@ public final class Request implements Runnable {
         indicator.visible();
         indicator.start();
         indicator.setMessage("Loading tweets...");
-///*        
+/*        
         try {
             loadUserTimeline();
         } catch (Exception e) {
@@ -104,8 +104,8 @@ public final class Request implements Runnable {
             List<ClusterGroup> cgList = new CopyOnWriteArrayList<ClusterGroup>();
 
             for (Cluster cluster : clusterList) {
-                ClusterGroup ce = new ClusterGroup(cluster);
-                cgList.add(ce);
+                ClusterGroup cg = new ClusterGroup(cluster);
+                cgList.add(cg);
             }
             vistweet.setClusterGroupList(cgList);
         } catch (SQLException e) {

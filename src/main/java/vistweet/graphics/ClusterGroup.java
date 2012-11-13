@@ -25,6 +25,7 @@ import java.util.List;
 import vistweet.data.cluster.Cluster;
 import casmi.graphics.color.Color;
 import casmi.graphics.color.ColorSet;
+import casmi.graphics.color.RGBColor;
 import casmi.graphics.element.Rect;
 import casmi.graphics.element.Text;
 import casmi.graphics.element.TextBox;
@@ -60,6 +61,8 @@ public final class ClusterGroup extends Group {
     public void setup() {
 
         rect = new Rect(width, height);
+        rect.setStroke(false);
+        rect.setStrokeColor(new RGBColor(0.8));
         add(rect);
         
         Font f = new Font("Default", FontStyle.PLAIN, 12.0);
@@ -101,8 +104,20 @@ public final class ClusterGroup extends Group {
         }
     }
     
+    public final Rect getRect() {
+        return rect;
+    }
+    
+    public final Color getRectFillColor() {
+        return rect.getFillColor();
+    }
+    
     public final void setRectFillColor(Color color) {
         rect.setFillColor(color);
+    }
+    
+    public final void setHighlight(boolean highlight) {
+        rect.setStroke(highlight);        
     }
     
     public Cluster getCluster() {

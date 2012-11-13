@@ -59,7 +59,7 @@ public final class DetailView extends Group {
     public void setup() {
         
         rect = new Rect(0, 0, width, height);
-        rect.setFillColor(new GrayColor(0.4));
+        rect.setFillColor(new GrayColor(0.6));
         rect.setStrokeColor(ColorSet.WHITE);
         rect.setStrokeWidth(1);
         add(rect);
@@ -77,8 +77,6 @@ public final class DetailView extends Group {
         timeText.setX(width  / 2 - 5);
         timeText.setY(-height / 2 + 5);
         add(timeText);
-        
-        add(icon);
     }
     
     @Override
@@ -98,7 +96,9 @@ public final class DetailView extends Group {
         
         text.setText(status.getText());
         textBox.setText(text);
-        
+
+        if (icon != null)
+            icon.remove();
         try {
             icon = new Texture(new URL(status.getProfileImageURL()));
         } catch (Exception e) {
@@ -109,6 +109,7 @@ public final class DetailView extends Group {
             }
         }
         icon.set(-this.width / 2 + 20, 10, 30, 30);
+        add(icon);
     }
 
     public final double getWidth() {

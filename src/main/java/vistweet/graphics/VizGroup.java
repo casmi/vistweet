@@ -46,8 +46,10 @@ public final class VizGroup extends Group {
         // calculate location of cluster
         root.setLocationOfRefsAuto();
         
-        setupIcon();
+        clear();
+        
         setupLine();
+        setupIcon();
     }
     
     private void setupIcon() {
@@ -63,19 +65,20 @@ public final class VizGroup extends Group {
         text.setStrokeColor(ColorSet.WHITE, this.getSceneStrokeColor().getAlpha());
         add(text);
         
-        // icon
-        Texture icon = root.getMain().getTexture();
-        icon.set(-root.getCox(), -root.getCoy(), ICON_SIZE, ICON_SIZE);
-        icon.getFillColor().setAlpha(this.getSceneFillColor().getAlpha());
-        add(icon);
-        
         // rect
         Rect rect = new Rect(ICON_SIZE, ICON_SIZE);
         rect.setStrokeColor(ColorSet.YELLOW, this.getSceneStrokeColor().getAlpha());
         rect.setStroke(true);
+        rect.setFill(false);
         rect.setX(-root.getCox());
         rect.setY(-root.getCoy());
         add(rect);
+        
+        // icon
+        Texture icon = root.getMain().getTexture();
+        icon.set(-root.getCox(), -root.getCoy(), ICON_SIZE, ICON_SIZE);
+//        icon.getFillColor().setAlpha(this.getSceneFillColor().getAlpha());
+        add(icon);
         
         setupIconRecursively(root);
     }
@@ -99,14 +102,6 @@ public final class VizGroup extends Group {
             text.setY(st.getY() - 2  - root.getCoy());
             text.setStrokeColor(ColorSet.WHITE, this.getSceneStrokeColor().getAlpha());
             add(text);
-            
-            // icon
-            Texture icon = st.getTexture();
-            if (icon != null) {
-                icon.set(st.getX() - root.getCox(), st.getY() - root.getCoy(), ICON_SIZE, ICON_SIZE);
-                icon.getFillColor().setAlpha(this.getSceneFillColor().getAlpha());
-                add(icon);
-            }
 
             // rect
             Rect rect = new Rect(ICON_SIZE, ICON_SIZE);
@@ -126,9 +121,18 @@ public final class VizGroup extends Group {
             default:
                 rect.setStroke(false);
             }
+            rect.setFill(false);
             rect.setX(st.getX() - root.getCox());
             rect.setY(st.getY() - root.getCoy());
             add(rect);
+            
+            // icon
+            Texture icon = st.getTexture();
+            if (icon != null) {
+                icon.set(st.getX() - root.getCox(), st.getY() - root.getCoy(), ICON_SIZE, ICON_SIZE);
+                icon.getFillColor().setAlpha(this.getSceneFillColor().getAlpha());
+                add(icon);
+            }
             
             setupIconRecursively(ref);
         }
