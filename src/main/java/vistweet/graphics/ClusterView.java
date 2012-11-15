@@ -37,7 +37,7 @@ import casmi.graphics.group.Group;
 /**
  * @author T. Takeuchi
  */
-public final class ClusterGroup extends Group {
+public final class ClusterView extends Group {
 
     private static final double   DEFAULT_WIDTH  = 350;
     private static final double   DEFAULT_HEIGHT = 90;
@@ -52,7 +52,7 @@ public final class ClusterGroup extends Group {
     private Rect    rect;
     private List<Texture> iconList = new ArrayList<Texture>();
     
-    public ClusterGroup(Cluster cluster) {
+    public ClusterView(Cluster cluster) {
         super();
         this.cluster = cluster;
         setup();

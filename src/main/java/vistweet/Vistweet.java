@@ -25,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import vistweet.data.cluster.Cluster;
 import vistweet.data.cluster.RootCluster;
-import vistweet.graphics.ClusterGroup;
+import vistweet.graphics.ClusterView;
 import vistweet.graphics.DetailView;
 import vistweet.graphics.Indicator;
 import vistweet.graphics.PINFrame;
@@ -79,7 +79,7 @@ public final class Vistweet extends Applet implements ActionListener {
     
     private GraphicsObject timeline = new GraphicsObject();
     private List<Cluster> clusterList = new CopyOnWriteArrayList<Cluster>();    
-    private List<ClusterGroup> cgList = new CopyOnWriteArrayList<ClusterGroup>();
+    private List<ClusterView> clusterViewList = new CopyOnWriteArrayList<ClusterView>();
     private int listTop = 0;
     
     private PINFrame pinFrame;
@@ -102,6 +102,7 @@ public final class Vistweet extends Applet implements ActionListener {
         // Setup elements and groups
         detailView = new DetailView();
         detailView.setPosition(getWidth() - 145.0,  40.0);
+        detailView.hidden();
         addObject(detailView);
         
         vizGroup = new VizGroup();
@@ -176,6 +177,7 @@ public final class Vistweet extends Applet implements ActionListener {
             public void run(MouseClickTypes eventtype, Element element) {
                 if (eventtype == MouseClickTypes.CLICKED) {
                     listTop--;
+                    updateTimeline();
                 }
             }
         });
@@ -205,6 +207,7 @@ public final class Vistweet extends Applet implements ActionListener {
             public void run(MouseClickTypes eventtype, Element element) {
                 if (eventtype == MouseClickTypes.CLICKED) {
                     listTop++;
+                    updateTimeline();
                 }
             }
         });
@@ -266,7 +269,7 @@ public final class Vistweet extends Applet implements ActionListener {
             @Override
             public void run(MouseClickTypes eventtype, Element element) {
                 if (eventtype == MouseClickTypes.CLICKED) {
-                    visGroupScale += 0.1f;
+                    visGroupScale += 0.2f;
                     Tween tween = Tween.to(tweenElement, TweenType.SCALE, 300, Linear.INOUT).target(visGroupScale);
                     addTween(tween);
                 }
@@ -298,7 +301,7 @@ public final class Vistweet extends Applet implements ActionListener {
             @Override
             public void run(MouseClickTypes eventtype, Element element) {
                 if (eventtype == MouseClickTypes.CLICKED) {
-                    visGroupScale -= 0.1f;
+                    visGroupScale -= 0.2f;
                     Tween tween = Tween.to(tweenElement, TweenType.SCALE, 300, Linear.INOUT).target(visGroupScale);
                     addTween(tween);
                 }
@@ -309,39 +312,12 @@ public final class Vistweet extends Applet implements ActionListener {
     
     @Override
     public void update() {
-        
-        // calculate begin and end of list in the window
-        int begin = (0 < listTop ? listTop - 1 : 0);
-        int end   = begin;
-        int totalHeight = 0;
-        for (int i = begin; i < cgList.size(); i++) {
-            ClusterGroup cg = cgList.get(cgList.size() - 1 - i);
-            totalHeight += cg.getHeight();
-            if (getHeight() - 40 < totalHeight) {
-                end = i + 2;
-                break;
-            }
-        }
-        if (cgList.size() < end) end = cgList.size();
-        
-        // ClusterGroup
-        for (int i = begin; i < end; ++i) {
-            final ClusterGroup cg = cgList.get(cgList.size() - 1 - i);
-            
-            Color c = (i % 2 == 0 ? new GrayColor(0.18) : new GrayColor(0.21));
-            cg.setRectFillColor(c);
-            cg.setPosition(cg.getWidth() / 2.0,
-                           getHeight() - cg.getHeight() / 2.0 - (i - listTop) * (cg.getHeight() + 10.0) - 25.0);
-            
-            
-
-        }
-        
+                       
         int topNum;
-        if (cgList.isEmpty()) {
+        if (clusterViewList.isEmpty()) {
             topNum = 0;
         } else {
-            topNum = cgList.size() - (int)(getHeight() / (cgList.get(0).getHeight() + 10));
+            topNum = clusterViewList.size() - (int)(getHeight() / (clusterViewList.get(0).getHeight() + 10));
         }
         
         if (listTop == 0) {
@@ -353,6 +329,28 @@ public final class Vistweet extends Applet implements ActionListener {
             downArrow.visible();
         }
     }
+    
+    private void updateTimeline() {
+        // calculate begin and end of list in the window
+        int begin = (0 < listTop ? listTop - 1 : 0);
+        int end   = begin;
+        int totalHeight = 0;
+        for (int i = begin; i < clusterViewList.size(); i++) {
+            ClusterView cg = clusterViewList.get(clusterViewList.size() - 1 - i);
+            totalHeight += cg.getHeight();
+            if (getHeight() - 40 < totalHeight) {
+                end = i + 2;
+                break;
+            }
+        }
+        if (clusterViewList.size() < end) end = clusterViewList.size();
+        
+        for (int i = begin; i < end; ++i) {
+            final ClusterView cv = clusterViewList.get(clusterViewList.size() - 1 - i);
+            cv.setPosition(cv.getWidth() / 2.0,
+                           getHeight() - cv.getHeight() / 2.0 - (i - listTop) * (cv.getHeight() + 10.0) - 25.0);
+        }        
+    }
 
     public List<Cluster> getClusterList() {
         return new CopyOnWriteArrayList<Cluster>(clusterList);
@@ -362,22 +360,28 @@ public final class Vistweet extends Applet implements ActionListener {
         clusterList = list;
     }
     
-    public List<ClusterGroup> getClusterGroupList() {
-        return new CopyOnWriteArrayList<ClusterGroup>(cgList);
+    public List<ClusterView> getClusterGroupList() {
+        return new CopyOnWriteArrayList<ClusterView>(clusterViewList);
     }
     
-    public void setClusterGroupList(List<ClusterGroup> list) {
+    public void setClusterGroupList(List<ClusterView> list) {
         
-        if (cgList != null) {
-            for (ClusterGroup cg : cgList) {
-                cg.remove();
+        if (this.clusterViewList != null) {
+            for (ClusterView cv : this.clusterViewList) {
+                cv.remove();
             }
         }
         
-        cgList = list;
+        this.clusterViewList = list;
         
-        for (final ClusterGroup cg : cgList) {
-            cg.getRect().addMouseEventCallback(new MouseOverCallback() {
+        int i = 0;
+        for (final ClusterView cv : this.clusterViewList) {
+            Color color = (i % 2 == 0 ? new GrayColor(0.18) : new GrayColor(0.21));
+            cv.setRectFillColor(color);
+            cv.setPosition(cv.getWidth() / 2.0,
+                           getHeight() - cv.getHeight() / 2.0 - (i - listTop) * (cv.getHeight() + 10.0) - 25.0);
+            
+            cv.getRect().addMouseEventCallback(new MouseOverCallback() {
                 
                 @Override
                 public void run(MouseOverTypes eventtype, Element element) {
@@ -385,44 +389,50 @@ public final class Vistweet extends Applet implements ActionListener {
                     switch (eventtype) {
                     case ENTERED:
                     case EXISTED:
-                        cg.setHighlight(true);
+                        cv.setHighlight(true);
                         break;
                     case EXITED:
                     default:
-                        cg.setHighlight(false);
+                        cv.setHighlight(false);
                         break;
                     }
                 }
             });
             
-            cg.addMouseEventCallback(new MouseClickCallback() {
+            cv.addMouseEventCallback(new MouseClickCallback() {
                 
                 @Override
                 public void run(MouseClickTypes eventtype, Element element) {
                     if (eventtype == MouseClickTypes.CLICKED &&
                         20 < getMouseY() && getMouseY() < getHeight() - 20) {
 
-                        double width  = getWidth() - cg.getWidth();
+                        double width  = getWidth() - cv.getWidth();
                         double height = getHeight();
-                        double x = width  / 2 + cg.getWidth() + 5;
+                        double x = width  / 2 + cv.getWidth() + 5;
                         double y = height / 2;
 
-                        vizGroup.setRootCluster((RootCluster)cg.getCluster());
+                        vizGroup.setRootCluster((RootCluster)cv.getCluster());
                         vizGroup.setPosition(x, y);
                         vizGroup.setSceneAlpha(0);
                         visGroupScale = 1.0f;
+                        vizGroup.setScale(visGroupScale);
 
                         tweenElement = null;
                         tweenElement = new TweenElement(vizGroup);
                         Tween tween = Tween.to(tweenElement, TweenType.ALPHA, 500, Linear.INOUT).target(255.0f);
                         addTween(tween);
 
-                        detailView.setStutas(cg.getCluster().getMain());
+                        detailView.setStutas(cv.getCluster().getMain());
+                        
+                        if (!detailView.isVisible())
+                            detailView.visible();
                     }
                 }
             });
             
-            timeline.add(cg);
+            timeline.add(cv);
+            
+            ++i;
         }
     }
     

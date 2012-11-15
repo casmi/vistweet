@@ -34,7 +34,7 @@ import vistweet.data.sql.Mention;
 import vistweet.data.sql.Retweet;
 import vistweet.data.sql.StatusInterface;
 import vistweet.data.sql.UserTimeline;
-import vistweet.graphics.ClusterGroup;
+import vistweet.graphics.ClusterView;
 import vistweet.graphics.Indicator;
 import casmi.exception.NetException;
 import casmi.exception.ParserException;
@@ -66,7 +66,7 @@ public final class Request implements Runnable {
         indicator.visible();
         indicator.start();
         indicator.setMessage("Loading tweets...");
-/*        
+///*        
         try {
             loadUserTimeline();
         } catch (Exception e) {
@@ -101,10 +101,10 @@ public final class Request implements Runnable {
             
             addCluster();
             
-            List<ClusterGroup> cgList = new CopyOnWriteArrayList<ClusterGroup>();
+            List<ClusterView> cgList = new CopyOnWriteArrayList<ClusterView>();
 
             for (Cluster cluster : clusterList) {
-                ClusterGroup cg = new ClusterGroup(cluster);
+                ClusterView cg = new ClusterView(cluster);
                 cgList.add(cg);
             }
             vistweet.setClusterGroupList(cgList);
