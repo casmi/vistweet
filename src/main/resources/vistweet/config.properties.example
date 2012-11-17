@@ -1,0 +1,8 @@
+################################################################################
+## configuration
+################################################################################
+
+## Twitter
+twitter.consumer_key = YOUR_TWITTER_CONSUMER_KEY
+twitter.consumer_secret = YOUR_TWITTER_CONSUMER_SECRET
+

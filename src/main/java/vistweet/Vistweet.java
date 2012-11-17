@@ -23,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import vistweet.config.Config;
 import vistweet.data.cluster.Cluster;
 import vistweet.data.cluster.RootCluster;
 import vistweet.graphics.ClusterView;
@@ -67,6 +68,8 @@ import casmi.util.SystemUtil;
  */
 public final class Vistweet extends Applet implements ActionListener {
 
+    private static final String CONFIG_PATH = Vistweet.class.getResource("config.properties").getPath();
+    
     private static final String DB_PATH = SystemUtil.JAVA_TMP_PATH + "vistweet.sqlite";
     
     private static final String RELOAD_ICON_PATH      = Vistweet.class.getResource("reload_icon.png").getPath();
@@ -96,6 +99,8 @@ public final class Vistweet extends Applet implements ActionListener {
 
     @Override
     public void setup() {
+        
+        Config.getInstance().load(CONFIG_PATH);
         
         setSize(1152, 680);
         

@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import vistweet.config.Config;
 import vistweet.data.json.JsonStatus;
 import vistweet.data.json.JsonUser;
 import vistweet.data.sql.StatusInterface;
@@ -36,6 +37,11 @@ import casmi.util.DateUtil;
 import casmi.util.FileUtil;
 import casmi.util.SystemUtil;
 
+/**
+ * Twitter access class.
+ * 
+ * @author T. Takeuchi
+ */
 public final class Twitter {
 
     public static final String DEFAULT_ICON_URL = "https://twimg0-a.akamaihd.net/sticky/default_profile_images/default_profile_6_normal.png";
@@ -45,10 +51,6 @@ public final class Twitter {
     private static final String AUTHORIZE_URL     = "https://api.twitter.com/oauth/authorize";
     private static final String ACCESS_TOKEN_URL  = "https://api.twitter.com/oauth/access_token";
     
-    // consumer key and secret
-    private static final String CONSUMER_KEY      = "WrK0HwVTrMBgN558vFg5w";
-    private static final String CONSUMER_SECRET   = "JytQH0bO9VYnquH53PrSuyif9hxAOu9mGy8rbQ";
-    
     // a file path for save token
     private static final String TOKEN_SAVE_FILE   = SystemUtil.JAVA_TMP_PATH + "vistweet_token.csv";
     
@@ -57,9 +59,6 @@ public final class Twitter {
     private static final String MENTIONS_REQUEST_URL      = "http://api.twitter.com/1/statuses/mentions.json?count=40";
     private static final String RETWEETS_OF_ME_URL        = "http://api.twitter.com/1/statuses/retweets_of_me.json";
     private static final String RETWEETED_BY_URL          = "http://api.twitter.com/1/statuses/:id/retweeted_by.json";
-    
-    private final String consumerKey    = CONSUMER_KEY;
-    private final String consumerSecret = CONSUMER_SECRET;
     
     private OAuth oauth;
     
@@ -73,7 +72,10 @@ public final class Twitter {
     
     public final void authorizeRequest() throws NetException, IOException {
         oauth = new OAuth();
-        oauth.setConsumer(consumerKey, consumerSecret);
+        
+        Config config = Config.getInstance();
+        oauth.setConsumer(config.getTwitterConsumerKey(), config.getTwitterConsumerSecret());        
+        
         oauth.setProvider(REQUEST_TOKEN_URL, ACCESS_TOKEN_URL, AUTHORIZE_URL);
         String url = oauth.retrieveRequestToken();
         
@@ -93,7 +95,10 @@ public final class Twitter {
     
     public final void sign(HTTP http) throws NetException {
         OAuth oauth = new OAuth();
-        oauth.setConsumer(consumerKey, consumerSecret);
+        
+        Config config = Config.getInstance();
+        oauth.setConsumer(config.getTwitterConsumerKey(), config.getTwitterConsumerSecret());
+        
         oauth.setTokenWithSecret(token, tokenSecret);
         oauth.sign(http);
     }
@@ -167,22 +172,6 @@ public final class Twitter {
         token       = line[0];
         tokenSecret = line[1];
         csv.close();
-    }
-
-    public final String getConsumerKey() {
-        return consumerKey;
-    }
-
-    public final String getConsumerSecret() {
-        return consumerSecret;
-    }
-
-    public final String getToken() {
-        return token;
-    }
-
-    public final String getTokenSecret() {
-        return tokenSecret;
     }
     
     public static final boolean isQT(StatusInterface status1, StatusInterface status2) {

@@ -1,6 +1,7 @@
 # About vistweet
 
 ## Abstract
+
 "vistweet" is a application to visualize relations among tweets on Twitter.
 First, you have to authorize Vital Atlas on Twitter and input PIN code.
 It reads and analyzes recent tweets when you click a reload button at upper right (or every 5 minutes). 
@@ -9,6 +10,7 @@ A red line and icon shows "reply," a green shows "official retweet (RT)," and a 
 You can change the scale by using plus/minus buttons at upper right.
 
 ## Inside of Program
+
 1. It reads a timeline of Twitter using Twitter API every 5 minutes (Request.java, Twitter.java).
 2. It parse downloaded JSON data and stores to JSON objects (JsonStatus.java, JsonUser.java).
 3. Then, it maps them on O/R mapping, and insert to a SQLite database (UserTimeline/Mention/Retweet.java).  
@@ -24,3 +26,16 @@ You can change the scale by using plus/minus buttons at upper right.
 - For drawing a timeline, it uses casmi.graphics.element.Rect/TextBox/Texture
 - For drawing a relation of tweets, it uses casmi.element.Line/Text/Texture
 - For grouping each components, it uses casmi.graphics.group.Group
+
+## Usage
+
+Clone git repository and copy configuration file.
+
+    $ git clone https://github.com/casmi/vistweet.git
+    $ cd src/main/resources/vistweet
+    $ cp config.properties.example config.properties
+    
+Write consumer key and secret of your Twitter application to config.properties.
+
+    twitter.consumer_key = YOUR_TWITTER_CONSUMER_KEY
+    twitter.consumer_secret = YOUR_TWITTER_CONSUMER_SECRET
